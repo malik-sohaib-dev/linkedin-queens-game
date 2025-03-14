@@ -4,6 +4,11 @@ interface IBox {
   region: number | null;
 }
 
+interface IDirection {
+  row: number;
+  column: number;
+}
+
 /**
  * #### Function to generate Queens board of size * size
  * @param size: number
@@ -77,10 +82,191 @@ const queensAndBlanksGenerator = (board: IBox[][], size: number): IBox[][] => {
   return board;
 };
 
+const isPositionOutsideBoundary = (
+  { row: row, column: col }: IDirection,
+  size: number
+): boolean => {
+  if (col < 0 || col >= size || row < 0 || row >= size) {
+    return true;
+  }
+  return false;
+};
+
+const queenBoxingConflict = (board: IBox[][], size: number): boolean => {
+  let queenBoxingConflict = true;
+
+  for (let i = 0; i < size; i++) {
+    queenBoxingConflict = true;
+    for (let j = 0; j < size; j++) {
+      if (typeof board[i][j].queenIndex !== "number") continue;
+
+      const row = i;
+      const col = j;
+      const queenBox: IDirection[] = [
+        { row: row - 1, column: col },
+        { row: row, column: col + 1 },
+        { row: row + 1, column: col },
+        { row: row, column: col - 1 },
+      ];
+
+      // loop over all possible movements
+      for (let k = 0; k < queenBox.length; k++) {
+        if (isPositionOutsideBoundary(queenBox[k], size)) {
+          continue;
+        }
+
+        if (
+          board[row][col].region !==
+          board[queenBox[k].row][queenBox[k].column].region
+        )
+          continue;
+
+        queenBoxingConflict = false;
+        break;
+      }
+    }
+    if (queenBoxingConflict) break;
+  }
+
+  return queenBoxingConflict;
+};
+
+const boxValidation = (
+  position: IDirection,
+  size: number,
+  region: number,
+  board: IBox[][]
+): boolean => {
+  const col = position.column;
+  const row = position.row;
+  // Check if position is outside box
+  if (isPositionOutsideBoundary(position, size)) {
+    return false;
+  }
+
+  // Check if region is already marked or has a queen in it
+  if (
+    board[row][col].isQueenPossible ||
+    typeof board[row][col].region === "number"
+  ) {
+    return false;
+  }
+
+  // Set the region to selected position and see if it causes queen boxing conflict
+  // const interimBoard: IBox[][] = [];
+
+  // for (let i = 0; i < board.length; i++) {
+  //   interimBoard.push([]);
+  //   for (let j = 0; j < board[i].length; j++) {
+  //     interimBoard[i].push(board[i][j]);
+  //   }
+  // }
+
+  // interimBoard[row][col] = { ...interimBoard[row][col], region };
+  // console.log("interimBoard", interimBoard)
+  // if (queenBoxingConflict(interimBoard, size)) {
+  //   return false;
+  // }
+
+  return true;
+};
+
+const validRegionDirectionsGenerator = (
+  position: IDirection,
+  board: IBox[][],
+  size: number,
+  region: number
+): IDirection[] => {
+  // console.log("Queen Position", position);
+  let positions: IDirection[] = [];
+  const row = position.row;
+  const col = position.column;
+
+  // Every position can have a max of 4 valid directions
+  const possibleMovements: IDirection[] = [
+    { row: row - 1, column: col },
+    { row: row, column: col + 1 },
+    { row: row + 1, column: col },
+    { row: row, column: col - 1 },
+  ];
+  // loop over all possible movements
+  for (let i = 0; i < possibleMovements.length; i++) {
+    const isValidPosition = boxValidation(
+      possibleMovements[i],
+      size,
+      region,
+      board
+    );
+
+    if (isValidPosition) positions.push(possibleMovements[i]);
+  }
+
+  // No valid positions found
+  return positions;
+};
+
 const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
   // Define max number of blocks
   const maxBlocks = Math.floor((size * size - (size - 1) * 2) / 2);
   console.log("MaxBLok", maxBlocks);
+
+  // Run nested loop over the board and set regions
+  for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+      if (
+        !board[i][j].isQueenPossible ||
+        !(typeof board[i][j].queenIndex === "number")
+      ) {
+        console.log("--------> skip turn");
+        continue;
+      }
+
+      // Note the region of the selected queen, if no region is present, then assign a region
+      let selectedRegion = board[i][j].queenIndex;
+      if (!selectedRegion) {
+        selectedRegion = i;
+        board[i][j] = { ...board[i][j], region: i };
+      }
+
+      // Randomly generate max block limit for the selected block. 2 <= regionBlockLimit <= maxBlocks
+      const regionBlockLimit = Math.round(Math.random() * (maxBlocks - 2)) + 2;
+      let blocksMarked = 1; // 1 by default since queen region is already marked
+
+      console.log(
+        "movesAllowed, selectedRegion",
+        regionBlockLimit,
+        selectedRegion
+      );
+
+      // Loop to mark directions, range limited by regionBlockLimit or legal moves exhaustion
+      let position: IDirection = { row: i, column: j };
+      for (; blocksMarked < regionBlockLimit; blocksMarked++) {
+        const validDirections: IDirection[] = validRegionDirectionsGenerator(
+          position,
+          board,
+          size,
+          selectedRegion
+        );
+        if (validDirections.length === 0) continue;
+        console.log("validDirections", validDirections);
+        // generate a random number between 0 and validDirections.length and take that direction
+        const random = Math.floor(Math.random() * validDirections.length);
+
+        const newPosition = validDirections[random];
+
+        // Mark the selected newPosition in the board with selectedRegion
+        board[newPosition.row][newPosition.column] = {
+          ...board[newPosition.row][newPosition.column],
+          region: selectedRegion,
+        };
+
+        console.log("newPosition", newPosition);
+
+        // update the position with newPosition
+        position = newPosition;
+      }
+    }
+  }
 
   return board;
 };

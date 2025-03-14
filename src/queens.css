@@ -8,6 +8,8 @@
 
   width: 50vw;
   height: 50vw;
+  max-width: 80vh;
+  max-height: 80vh;
 }
 
 .child {
@@ -22,7 +24,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: white;
+  background-color: lightgray;
 }
 
 .queen {
