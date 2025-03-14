@@ -116,10 +116,13 @@ const queenBoxingConflict = (board: IBox[][], size: number): boolean => {
         }
 
         if (
+          typeof board[queenBox[k].row][queenBox[k].column].region ===
+            "number" &&
           board[row][col].region !==
-          board[queenBox[k].row][queenBox[k].column].region
-        )
+            board[queenBox[k].row][queenBox[k].column].region
+        ) {
           continue;
+        }
 
         queenBoxingConflict = false;
         break;
@@ -153,20 +156,25 @@ const boxValidation = (
   }
 
   // Set the region to selected position and see if it causes queen boxing conflict
-  // const interimBoard: IBox[][] = [];
 
+  // <<RANT>> Because of JS shenanigans, I've to do this mumbo jumbo. "JS passes natives by value and other data types by reference. Even spread operator won't work in my case because of nested structure." I've rawdawgged 2 ways for my case though, the aesthetic way and the easy way.
+  // Method 1. Artificially duplicate the IBox[][] array
+  // const interimBoard: IBox[][] = [];
   // for (let i = 0; i < board.length; i++) {
   //   interimBoard.push([]);
   //   for (let j = 0; j < board[i].length; j++) {
   //     interimBoard[i].push(board[i][j]);
   //   }
   // }
-
   // interimBoard[row][col] = { ...interimBoard[row][col], region };
-  // console.log("interimBoard", interimBoard)
-  // if (queenBoxingConflict(interimBoard, size)) {
-  //   return false;
-  // }
+  // Method 2. Shitty looking but Less expensive value rotation I guess
+  const tempRegion = board[row][col].region;
+  board[row][col].region = region;
+  if (queenBoxingConflict(board, size)) {
+    board[row][col].region = tempRegion; // Reassigning the original region
+    return false;
+  }
+  board[row][col].region = tempRegion; // Reassigning the original region
 
   return true;
 };
