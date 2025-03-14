@@ -10,6 +10,7 @@
   height: 50vw;
   max-width: 80vh;
   max-height: 80vh;
+  margin: 10px;
 }
 
 .child {

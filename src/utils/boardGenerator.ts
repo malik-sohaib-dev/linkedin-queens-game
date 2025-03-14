@@ -1,4 +1,4 @@
-interface IBox {
+export interface IBox {
   queenIndex: number | null;
   isQueenPossible: boolean;
   region: number | null;
@@ -305,28 +305,36 @@ const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
 };
 
 export const generategameBoard = (size: number): IBox[][] => {
-  // Initialize a default box
-  const box: IBox = {
-    queenIndex: null,
-    isQueenPossible: true,
-    region: null,
-  };
+  try {
+    // Initialize a default box
+    const box: IBox = {
+      queenIndex: null,
+      isQueenPossible: true,
+      region: null,
+    };
 
-  // Initialize a multidimentional array of size/size
-  let board: IBox[][] = new Array(size).fill(true).map(() => {
-    return new Array(size).fill(box);
-  });
+    // Initialize a multidimentional array of size/size
+    let board: IBox[][] = new Array(size).fill(true).map(() => {
+      return new Array(size).fill(box);
+    });
 
-  // Generate Queens and Blanks
-  board = queensAndBlanksGenerator(board, size);
+    // Generate Queens and Blanks
+    board = queensAndBlanksGenerator(board, size);
 
-  // Generate Regions
-  board = regionGenerator(board, size);
+    // Generate Regions
+    board = regionGenerator(board, size);
 
-  // Coat regionless boxes with any neighboring region. Doing a clockwise search for now
-  board = fillUntrackedBoxes(board, size);
+    // Coat regionless boxes with any neighboring region. Doing a clockwise search for now
+    board = fillUntrackedBoxes(board, size);
 
-  console.log("Final Board", board);
-  // Return Game board
-  return board;
+    console.log("Final Board", board);
+    // Return Game board
+    return board;
+  } catch (error) {
+    console.error(
+      "Retrying... Solution Board Generation Failed with error: ",
+      error
+    );
+  }
+  return generategameBoard(size);
 };
