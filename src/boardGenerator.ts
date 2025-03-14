@@ -279,6 +279,45 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
   return board;
 };
 
+const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
+  // By default we'll assume there are unaffiliated boxes
+  let blanksPresent = true;
+  while (blanksPresent) {
+    blanksPresent = false;
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        if (typeof board[i][j].region === "number") continue;
+        const row = i;
+        const col = j;
+
+        const possibleMovements: IDirection[] = [
+          { row: row - 1, column: col },
+          { row: row, column: col + 1 },
+          { row: row + 1, column: col },
+          { row: row, column: col - 1 },
+        ];
+
+        // Do a clockwise search and adopt the first region that comes in contact
+        for (let k = 0; k < possibleMovements.length; k++) {
+          // Verify if the position is inside the board
+          if (isPositionOutsideBoundary(possibleMovements[k], size)) continue;
+
+          const region =
+            board[possibleMovements[k].row][possibleMovements[k].column].region;
+
+          if (typeof region === "number") {
+            board[row][col] = { ...board[row][col], region };
+          }
+        }
+
+        blanksPresent = true;
+      }
+    }
+  }
+
+  return board;
+};
+
 export const generategameBoard = (size: number): IBox[][] => {
   console.log("Generating Game board");
   // Initialize a default box
@@ -298,6 +337,9 @@ export const generategameBoard = (size: number): IBox[][] => {
 
   // Generate Regions
   board = regionGenerator(board, size);
+
+  // Coat regionless boxes with any neighboring region. Doing a clockwise search for now
+  board = fillUntrackedBoxes(board, size);
 
   console.log("Final Board", board);
   // Return Game board
