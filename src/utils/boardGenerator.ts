@@ -36,11 +36,9 @@ const randomQueenIndexGenerator = (data: IBox[]): number => {
 };
 
 const queensAndBlanksGenerator = (board: IBox[][], size: number): IBox[][] => {
-  console.log("Generating Queens and Blanks");
   for (let i = 0; i < size; i++) {
     // Check a random valid box for queen
     const queenIndex = randomQueenIndexGenerator(board[i]);
-    console.log("queenIndex", queenIndex);
 
     // set the queen at the respective index
     board[i][queenIndex] = {
@@ -185,7 +183,6 @@ const validRegionDirectionsGenerator = (
   size: number,
   region: number
 ): IDirection[] => {
-  // console.log("Queen Position", position);
   let positions: IDirection[] = [];
   const row = position.row;
   const col = position.column;
@@ -216,7 +213,6 @@ const validRegionDirectionsGenerator = (
 const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
   // Define max number of blocks
   const maxBlocks = Math.floor((size * size - (size - 1) * 2) / 2);
-  console.log("MaxBLok", maxBlocks);
 
   // Run nested loop over the board and set regions
   for (let i = 0; i < size; i++) {
@@ -225,7 +221,6 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
         !board[i][j].isQueenPossible ||
         !(typeof board[i][j].queenIndex === "number")
       ) {
-        console.log("--------> skip turn");
         continue;
       }
 
@@ -240,12 +235,6 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
       const regionBlockLimit = Math.round(Math.random() * (maxBlocks - 2)) + 2;
       let blocksMarked = 1; // 1 by default since queen region is already marked
 
-      console.log(
-        "movesAllowed, selectedRegion",
-        regionBlockLimit,
-        selectedRegion
-      );
-
       // Loop to mark directions, range limited by regionBlockLimit or legal moves exhaustion
       let position: IDirection = { row: i, column: j };
       for (; blocksMarked < regionBlockLimit; blocksMarked++) {
@@ -256,7 +245,6 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
           selectedRegion
         );
         if (validDirections.length === 0) continue;
-        console.log("validDirections", validDirections);
         // generate a random number between 0 and validDirections.length and take that direction
         const random = Math.floor(Math.random() * validDirections.length);
 
@@ -267,8 +255,6 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
           ...board[newPosition.row][newPosition.column],
           region: selectedRegion,
         };
-
-        console.log("newPosition", newPosition);
 
         // update the position with newPosition
         position = newPosition;
@@ -319,7 +305,6 @@ const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
 };
 
 export const generategameBoard = (size: number): IBox[][] => {
-  console.log("Generating Game board");
   // Initialize a default box
   const box: IBox = {
     queenIndex: null,
