@@ -6,9 +6,9 @@ import Castle from "./components/Castle";
 const boardSize = 7;
 
 interface IGame {
-  region: number;
-  isBlank: boolean;
-  isQueen: boolean;
+  region?: number;
+  isBlank?: boolean;
+  isQueen?: boolean;
 }
 
 function App() {
@@ -64,7 +64,7 @@ function App() {
   }, []);
 
   // WIP: Unified place to set gameboard
-  const handleSetGame = (row: number, col: number, changes: IGame) => {
+  const handleGameChange = (row: number, col: number, changes: IGame) => {
     setGame((prev) => {
       prev[row][col] = { ...prev[row][col], ...changes };
       return prev;
@@ -77,20 +77,11 @@ function App() {
     // @Todo For Some reason, without this the other states aren't rerendering the component
     setToggle((prev) => !prev);
     if (!game[row][col].isBlank && !game[row][col].isQueen) {
-      setGame((prev) => {
-        prev[row][col] = { ...prev[row][col], isBlank: true, isQueen: false };
-        return prev;
-      });
+      handleGameChange(row, col, { isBlank: true, isQueen: false });
     } else if (!game[row][col].isQueen) {
-      setGame((prev) => {
-        prev[row][col] = { ...prev[row][col], isBlank: false, isQueen: true };
-        return prev;
-      });
+      handleGameChange(row, col, { isBlank: false, isQueen: true });
     } else {
-      setGame((prev) => {
-        prev[row][col] = { ...prev[row][col], isBlank: false, isQueen: false };
-        return prev;
-      });
+      handleGameChange(row, col, { isBlank: false, isQueen: false });
     }
   };
 
@@ -102,10 +93,7 @@ function App() {
     setToggle((prev) => !prev);
     // Incase of multiselect, just manage putting blanks
     if (!game[row][col].isBlank && !game[row][col].isQueen) {
-      setGame((prev) => {
-        prev[row][col] = { ...prev[row][col], isBlank: true, isQueen: false };
-        return prev;
-      });
+      handleGameChange(row, col, { isBlank: true, isQueen: false });
     }
   };
 
@@ -117,7 +105,6 @@ function App() {
       gameBoard.push([]);
       for (let j = 0; j < boardSize; j++) {
         const gameObject: IGame = {
-          // eslint-disable-next-line
           region:
             typeof solvedGame[i][j].region === "number"
               ? solvedGame[i][j].region
