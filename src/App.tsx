@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import "./queens.css";
-// import { gameSolutionBoard4 } from "./structure";
 import { generategameBoard, IBox } from "./utils/boardGenerator";
+import Castle from "./components/Castle";
 const boardSize = 7;
 
 interface IGame {
@@ -169,11 +169,7 @@ function App() {
                 >
                   {box.isQueen ? (
                     <>
-                      <img
-                        draggable={false}
-                        className="queen"
-                        src="./queen.png"
-                      />
+                      <Castle size={30} fill="black" />
                     </>
                   ) : (
                     box.isBlank && (
@@ -211,7 +207,7 @@ function App() {
                 >
                   {box.isQueenPossible && typeof box.queenIndex === "number" ? (
                     <>
-                      <img className="queen" src="./queen.png" />
+                      <Castle size={30} fill="black" />
                     </>
                   ) : (
                     <>
