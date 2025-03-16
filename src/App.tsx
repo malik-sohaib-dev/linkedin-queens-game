@@ -109,14 +109,11 @@ function App() {
       gameBoard.push([]);
       for (let j = 0; j < boardSize; j++) {
         const gameObject: IGame = {
-          region:
-            typeof solvedGame[i][j].region === "number"
-              ? solvedGame[i][j].region
-              : 99,
+          region: solvedGame[i][j].region as number,
           isBlank: false,
           isQueen: false,
         };
-        // console.log(i, gameBoard);
+
         gameBoard[i].push(gameObject);
       }
 
