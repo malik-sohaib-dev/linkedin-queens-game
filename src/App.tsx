@@ -3,7 +3,6 @@ import "./App.css";
 import "./queens.css";
 import { generategameBoard, IBox } from "./utils/boardGenerator";
 import Castle from "./components/Castle";
-const boardSize = 7;
 
 interface IGame {
   region?: number;
@@ -16,6 +15,8 @@ function App() {
   const [solvedGame, setSolvedgame] = useState<IBox[][]>([]);
   const [_toggle, setToggle] = useState(false);
   const [mouseDown, setMouseDown] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
+  const [boardSize, setBoardSize] = useState(5);
   const boardReference = useRef<HTMLDivElement>(null);
   const colors = [
     "skyblue",
@@ -30,11 +31,13 @@ function App() {
     "pink",
   ];
 
+  const boardSizes = [5, 6, 7, 8, 9, 10];
+
   useEffect(() => {
     const solvedGameBoard = generategameBoard(boardSize);
     setSolvedgame(solvedGameBoard);
 
-    if (solvedGameBoard.length > 0) {
+    if (solvedGame.length === boardSize) {
       clearBoard();
     }
   }, [boardSize]);
@@ -97,8 +100,9 @@ function App() {
     }
   };
 
+  // Populate the game board with just the regions
   const clearBoard = () => {
-    if (solvedGame.length == 0) return;
+    if (solvedGame.length !== boardSize) return;
     let gameBoard: IGame[][] = [];
     // Process Solution board and make player game board
     for (let i = 0; i < boardSize; i++) {
@@ -125,11 +129,36 @@ function App() {
     setSolvedgame(solvedGameBoard);
   };
 
+  const setBoardSizeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    let size = Number(e.target.value);
+    if (size >= 5) setBoardSize(size);
+  };
+
   return (
     <>
       {/* {toggle && <>Yayyy</>} */}
+      <select
+        defaultValue={boardSize}
+        onChange={(e) => {
+          setBoardSizeHandler(e);
+        }}
+      >
+        <option>Select the board size</option>
+        {boardSizes.map((val, i) => (
+          <option key={i} value={val}>
+            {val}
+          </option>
+        ))}
+      </select>
       <button onClick={clearBoard}>Restart</button>
-      <button onClick={recreate}>Reshuffle</button>
+      <button onClick={recreate}>New Game</button>
+      <button
+        onClick={() => {
+          setShowSolution((prev) => !prev);
+        }}
+      >
+        Show Solution
+      </button>
       <div
         className="parent"
         style={{
@@ -171,41 +200,44 @@ function App() {
           })}
       </div>
 
-      <div
-        className="parent"
-        style={{
-          gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
-          gridTemplateRows: `repeat(${boardSize}, 1fr)`,
-        }}
-      >
-        {solvedGame.length > 0 &&
-          solvedGame.map((row) => {
-            return row.map((box, i) => {
-              return (
-                <div
-                  key={i}
-                  className="child"
-                  style={{
-                    backgroundColor:
-                      typeof box.region === "number"
-                        ? colors[box.region]
-                        : "red",
-                  }}
-                >
-                  {box.isQueenPossible && typeof box.queenIndex === "number" ? (
-                    <>
-                      <Castle size={30} fill="black" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="dot" />
-                    </>
-                  )}
-                </div>
-              );
-            });
-          })}
-      </div>
+      {showSolution && (
+        <div
+          className="parent"
+          style={{
+            gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
+            gridTemplateRows: `repeat(${boardSize}, 1fr)`,
+          }}
+        >
+          {solvedGame.length > 0 &&
+            solvedGame.map((row) => {
+              return row.map((box, i) => {
+                return (
+                  <div
+                    key={i}
+                    className="child"
+                    style={{
+                      backgroundColor:
+                        typeof box.region === "number"
+                          ? colors[box.region]
+                          : "red",
+                    }}
+                  >
+                    {box.isQueenPossible &&
+                    typeof box.queenIndex === "number" ? (
+                      <>
+                        <Castle size={30} fill="black" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="dot" />
+                      </>
+                    )}
+                  </div>
+                );
+              });
+            })}
+        </div>
+      )}
     </>
   );
 }
