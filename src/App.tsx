@@ -1,13 +1,23 @@
 import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import "./queens.css";
-import { generategameBoard, IBox } from "./utils/boardGenerator";
 import Castle from "./components/Castle";
+import { IBox, generateGameSolutionBoard, processGameBoard } from "./utils";
 
-interface IGame {
+export interface IGame {
+  region: number; // Region Number of cell. Range (0 - boardSize-1)
+  isBlank: boolean; // Does the box have a blank
+  isQueen: boolean; // Does the box have a queen
+  conflict: boolean; // True if the placement in block causes game rule conflict
+}
+
+let setTimeoutId: undefined | number = undefined;
+
+interface IGamePatch {
   region?: number;
   isBlank?: boolean;
   isQueen?: boolean;
+  conflict?: boolean;
 }
 
 function App() {
@@ -16,7 +26,8 @@ function App() {
   const [_toggle, setToggle] = useState(false);
   const [mouseDown, setMouseDown] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [boardSize, setBoardSize] = useState(5);
+  const [victory, setVictory] = useState(false);
+  const [boardSize, setBoardSize] = useState(5); // Default board size of 5
   const boardReference = useRef<HTMLDivElement>(null);
   const colors = [
     "skyblue",
@@ -33,8 +44,9 @@ function App() {
 
   const boardSizes = [5, 6, 7, 8, 9, 10];
 
+  // Generate new game solution board if boardSize changes
   useEffect(() => {
-    const solvedGameBoard = generategameBoard(boardSize);
+    const solvedGameBoard = generateGameSolutionBoard(boardSize);
     setSolvedgame(solvedGameBoard);
 
     if (solvedGame.length === boardSize) {
@@ -42,22 +54,33 @@ function App() {
     }
   }, [boardSize]);
 
+  // Initialize the game board with regions
   useEffect(() => {
+    setVictory(false);
     clearBoard();
   }, [solvedGame]);
+
+  const victoryCelebration = () => {
+    if (victory) alert("Victory!!!");
+  };
+
+  useEffect(() => {
+    if (victory) {
+      setTimeoutId = setTimeout(victoryCelebration, 500);
+    } else {
+      clearTimeout(setTimeoutId);
+    }
+  }, [victory]);
 
   // Add event listners on Game Board to have multiselect functionality
   useEffect(() => {
     boardReference.current?.addEventListener("mousedown", () => {
-      console.log("Mouse Down");
       setMouseDown(true);
     });
     boardReference.current?.addEventListener("mouseup", () => {
-      console.log("Mouse Up");
       setMouseDown(false);
     });
     boardReference.current?.addEventListener("mouseleave", () => {
-      console.log("Mouse left");
       setMouseDown(false);
     });
     return () => {
@@ -66,17 +89,24 @@ function App() {
     };
   }, []);
 
-  // WIP: Unified place to set gameboard
-  const handleGameChange = (row: number, col: number, changes: IGame) => {
-    setGame((prev) => {
-      prev[row][col] = { ...prev[row][col], ...changes };
-      return prev;
-    });
+  // Unified place to set gameboard
+  const handleGameChange = (row: number, col: number, changes: IGamePatch) => {
+    const newgameBoard = game;
+    newgameBoard[row][col] = { ...newgameBoard[row][col], ...changes };
+    const { hasConflicts, queenCount } = processGameBoard(
+      newgameBoard,
+      boardSize
+    );
+    setGame(newgameBoard);
+    if (!hasConflicts && queenCount === boardSize) {
+      setVictory(true);
+    } else {
+      setVictory(false);
+    }
   };
 
   // Handle Direct Click on a box
   const handleClick = (row: number, col: number) => {
-    console.log("Click", row, col);
     // @Todo For Some reason, without this the other states aren't rerendering the component
     setToggle((prev) => !prev);
     if (!game[row][col].isBlank && !game[row][col].isQueen) {
@@ -91,7 +121,6 @@ function App() {
   // Handle for multiselect case
   const handleDrag = (row: number, col: number) => {
     if (!mouseDown) return;
-    console.log("Drag", row, col);
     // @Todo For Some reason, without this the other states aren't rerendering the component
     setToggle((prev) => !prev);
     // Incase of multiselect, just manage putting blanks
@@ -112,6 +141,7 @@ function App() {
           region: solvedGame[i][j].region as number,
           isBlank: false,
           isQueen: false,
+          conflict: false,
         };
 
         gameBoard[i].push(gameObject);
@@ -122,7 +152,7 @@ function App() {
   };
 
   const recreate = () => {
-    const solvedGameBoard = generategameBoard(boardSize);
+    const solvedGameBoard = generateGameSolutionBoard(boardSize);
     setSolvedgame(solvedGameBoard);
   };
 
@@ -182,7 +212,7 @@ function App() {
                 >
                   {box.isQueen ? (
                     <>
-                      <Castle size={30} fill="black" />
+                      <Castle size={30} fill={box.conflict ? "red" : "black"} />
                     </>
                   ) : (
                     box.isBlank && (

@@ -1,12 +1,9 @@
+import { IPosition, isPositionOutsideBoundary } from "./common";
+
 export interface IBox {
   queenIndex: number | null;
   isQueenPossible: boolean;
   region: number | null;
-}
-
-interface IDirection {
-  row: number;
-  column: number;
 }
 
 /**
@@ -80,16 +77,6 @@ const queensAndBlanksGenerator = (board: IBox[][], size: number): IBox[][] => {
   return board;
 };
 
-const isPositionOutsideBoundary = (
-  { row: row, column: col }: IDirection,
-  size: number
-): boolean => {
-  if (col < 0 || col >= size || row < 0 || row >= size) {
-    return true;
-  }
-  return false;
-};
-
 const queenBoxingConflict = (board: IBox[][], size: number): boolean => {
   let queenBoxingConflict = true;
 
@@ -100,7 +87,7 @@ const queenBoxingConflict = (board: IBox[][], size: number): boolean => {
 
       const row = i;
       const col = j;
-      const queenBox: IDirection[] = [
+      const queenBox: IPosition[] = [
         { row: row - 1, column: col },
         { row: row, column: col + 1 },
         { row: row + 1, column: col },
@@ -133,7 +120,7 @@ const queenBoxingConflict = (board: IBox[][], size: number): boolean => {
 };
 
 const boxValidation = (
-  position: IDirection,
+  position: IPosition,
   size: number,
   region: number,
   board: IBox[][]
@@ -178,17 +165,17 @@ const boxValidation = (
 };
 
 const validRegionDirectionsGenerator = (
-  position: IDirection,
+  position: IPosition,
   board: IBox[][],
   size: number,
   region: number
-): IDirection[] => {
-  let positions: IDirection[] = [];
+): IPosition[] => {
+  let positions: IPosition[] = [];
   const row = position.row;
   const col = position.column;
 
   // Every position can have a max of 4 valid directions
-  const possibleMovements: IDirection[] = [
+  const possibleMovements: IPosition[] = [
     { row: row - 1, column: col },
     { row: row, column: col + 1 },
     { row: row + 1, column: col },
@@ -236,9 +223,9 @@ const regionGenerator = (board: IBox[][], size: number): IBox[][] => {
       let blocksMarked = 1; // 1 by default since queen region is already marked
 
       // Loop to mark directions, range limited by regionBlockLimit or legal moves exhaustion
-      let position: IDirection = { row: i, column: j };
+      let position: IPosition = { row: i, column: j };
       for (; blocksMarked < regionBlockLimit; blocksMarked++) {
-        const validDirections: IDirection[] = validRegionDirectionsGenerator(
+        const validDirections: IPosition[] = validRegionDirectionsGenerator(
           position,
           board,
           size,
@@ -276,7 +263,7 @@ const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
         const row = i;
         const col = j;
 
-        const possibleMovements: IDirection[] = [
+        const possibleMovements: IPosition[] = [
           { row: row - 1, column: col },
           { row: row, column: col + 1 },
           { row: row + 1, column: col },
@@ -304,7 +291,7 @@ const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
   return board;
 };
 
-export const generategameBoard = (size: number): IBox[][] => {
+export const generateGameSolutionBoard = (size: number): IBox[][] => {
   try {
     // Initialize a default box
     const box: IBox = {
@@ -336,5 +323,5 @@ export const generategameBoard = (size: number): IBox[][] => {
       error
     );
   }
-  return generategameBoard(size);
+  return generateGameSolutionBoard(size);
 };
