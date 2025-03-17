@@ -1,10 +1,5 @@
-import { IPosition, isPositionOutsideBoundary } from "./common";
-
-export interface IBox {
-  queenIndex: number | null;
-  isQueenPossible: boolean;
-  region: number | null;
-}
+import { IBox, IPosition, isPositionOutsideBoundary } from "./common";
+import { isUniqueSolution } from "./validateUniqueSolution";
 
 /**
  * #### Function to generate Queens board of size * size
@@ -31,7 +26,7 @@ const randomQueenIndexGenerator = (data: IBox[]): number => {
 
   return allowedQueensIndexs[random];
 };
-
+let queenString = "";
 const queensAndBlanksGenerator = (board: IBox[][], size: number): IBox[][] => {
   for (let i = 0; i < size; i++) {
     // Check a random valid box for queen
@@ -43,7 +38,7 @@ const queensAndBlanksGenerator = (board: IBox[][], size: number): IBox[][] => {
       isQueenPossible: true,
       region: i,
     };
-
+    queenString += queenIndex;
     // Set all blocks from the queen row apart from queenIndex to blank
     for (let j = 0; j < size; j++) {
       if (typeof board[i][j].queenIndex !== "number") {
@@ -304,15 +299,20 @@ export const generateGameSolutionBoard = (size: number): IBox[][] => {
     let board: IBox[][] = new Array(size).fill(true).map(() => {
       return new Array(size).fill(box);
     });
-
+    queenString = "";
     // Generate Queens and Blanks
     board = queensAndBlanksGenerator(board, size);
+    console.log(queenString);
 
     // Generate Regions
     board = regionGenerator(board, size);
 
     // Coat regionless boxes with any neighboring region. Doing a clockwise search for now
     board = fillUntrackedBoxes(board, size);
+
+    // Check if this board has a unique solution
+    // console.log("Unique Solution", isUniqueSolution(board, size))
+    // if (!isUniqueSolution(board, size)) throw new Error("AAAAAAA")
 
     console.log("Final Board", board);
     // Return Game board

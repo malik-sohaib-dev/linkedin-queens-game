@@ -1,3 +1,9 @@
+export interface IBox {
+  queenIndex: number | null;
+  isQueenPossible: boolean;
+  region: number | null;
+}
+
 export interface IPosition {
   row: number;
   column: number;
