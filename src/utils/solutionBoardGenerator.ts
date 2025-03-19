@@ -312,7 +312,7 @@ export const generateGameSolutionBoard = (size: number): IBox[][] => {
 
     // Check if this board has a unique solution
     // console.log("Unique Solution", isUniqueSolution(board, size))
-    if (size > 8 && !isUniqueSolution(board, size)) throw new Error("Unique solution not found");
+    if (size <= 8 && !isUniqueSolution(board, size)) throw new Error("Unique solution not found");
 
     console.log("Final Board", board);
     // Return Game board
