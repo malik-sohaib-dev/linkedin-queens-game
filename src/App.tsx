@@ -2,32 +2,31 @@ import { useEffect, useState, useRef } from "react";
 import "./App.css";
 import "./queens.css";
 import Castle from "./components/Castle";
-import { IBox, generateGameSolutionBoard, processGameBoard } from "./utils";
-
-export interface IGame {
-  region: number; // Region Number of cell. Range (0 - boardSize-1)
-  isBlank: boolean; // Does the box have a blank
-  isQueen: boolean; // Does the box have a queen
-  conflict: boolean; // True if the placement in block causes game rule conflict
-}
+import {
+  IBox,
+  IGame,
+  IGamePatch,
+  IHintMesh,
+  generateGameSolutionBoard,
+  processGameBoard,
+} from "./utils";
+import { hintGenerator } from "./utils/hintGenerator";
 
 let setTimeoutId: undefined | number = undefined;
 
-interface IGamePatch {
-  region?: number;
-  isBlank?: boolean;
-  isQueen?: boolean;
-  conflict?: boolean;
-}
-
 function App() {
   const [game, setGame] = useState<IGame[][]>([]);
+  const [hintMesh, setHintMesh] = useState<IHintMesh[][]>([]);
+  const [hintMessage, setHintMessage] = useState(
+    "This is a sample hint message"
+  );
   const [solvedGame, setSolvedgame] = useState<IBox[][]>([]);
-  const [_toggle, setToggle] = useState(false);
+  const [_toggle, setToggle] = useState(false); // @Todo get rid of this
   const [mouseDown, setMouseDown] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [victory, setVictory] = useState(false);
   const [boardSize, setBoardSize] = useState(5); // Default board size of 5
+  const [queenString, setQueenString] = useState("");
   const boardReference = useRef<HTMLDivElement>(null);
   const colors = [
     "skyblue",
@@ -46,8 +45,9 @@ function App() {
 
   // Generate new game solution board if boardSize changes
   useEffect(() => {
-    const solvedGameBoard = generateGameSolutionBoard(boardSize);
-    setSolvedgame(solvedGameBoard);
+    const { queenString, solutionBoard } = generateGameSolutionBoard(boardSize);
+    setQueenString(queenString);
+    setSolvedgame(solutionBoard);
 
     if (solvedGame.length === boardSize) {
       clearBoard();
@@ -152,13 +152,24 @@ function App() {
   };
 
   const recreate = () => {
-    const solvedGameBoard = generateGameSolutionBoard(boardSize);
-    setSolvedgame(solvedGameBoard);
+    const { queenString, solutionBoard } = generateGameSolutionBoard(boardSize);
+    setQueenString(queenString);
+    setSolvedgame(solutionBoard);
   };
 
   const setBoardSizeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
     let size = Number(e.target.value);
     if (size >= 5) setBoardSize(size);
+  };
+
+  const getHint = () => {
+    const { hintMesh, hintMessage } = hintGenerator(
+      game,
+      boardSize,
+      queenString
+    );
+    setHintMesh(hintMesh);
+    setHintMessage(hintMessage);
   };
 
   return (
@@ -186,6 +197,7 @@ function App() {
       >
         Show Solution
       </button>
+      <button onClick={getHint}>Hint</button>
       <div
         className="parent"
         style={{
@@ -226,7 +238,7 @@ function App() {
             });
           })}
       </div>
-
+      <div>{hintMessage}</div>
       {showSolution && (
         <div
           className="parent"

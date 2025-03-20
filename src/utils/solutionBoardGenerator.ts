@@ -286,7 +286,9 @@ const fillUntrackedBoxes = (board: IBox[][], size: number): IBox[][] => {
   return board;
 };
 
-export const generateGameSolutionBoard = (size: number): IBox[][] => {
+export const generateGameSolutionBoard = (
+  size: number
+): { solutionBoard: IBox[][]; queenString: string } => {
   try {
     // Initialize a default box
     const box: IBox = {
@@ -312,11 +314,12 @@ export const generateGameSolutionBoard = (size: number): IBox[][] => {
 
     // Check if this board has a unique solution
     // console.log("Unique Solution", isUniqueSolution(board, size))
-    if (size <= 8 && !isUniqueSolution(board, size)) throw new Error("Unique solution not found");
+    if (size <= 8 && !isUniqueSolution(board, size))
+      throw new Error("Unique solution not found");
 
     console.log("Final Board", board);
     // Return Game board
-    return board;
+    return { solutionBoard: board, queenString };
   } catch (error) {
     console.error(
       "Retrying... Solution Board Generation Failed with error: ",
