@@ -18,7 +18,7 @@ function App() {
   const [game, setGame] = useState<IGame[][]>([]);
   const [hintMesh, setHintMesh] = useState<IHintMesh[][]>([]);
   const [hintMessage, setHintMessage] = useState(
-    "This is a sample hint message"
+    ""
   );
   const [solvedGame, setSolvedgame] = useState<IBox[][]>([]);
   const [_toggle, setToggle] = useState(false); // @Todo get rid of this
