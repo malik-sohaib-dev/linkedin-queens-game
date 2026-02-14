@@ -1,42 +1,173 @@
-#root {
-  max-width: 1280px;
+.queens-app {
+  min-height: 100dvh;
+  padding: clamp(1.25rem, 4vw, 2.75rem);
+  max-width: 1120px;
   margin: 0 auto;
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.queens-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.queens-brand {
+  text-align: left;
+}
+
+.queens-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  font-weight: 500;
+  font-optical-sizing: auto;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.queens-tagline {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--ink-muted);
+  font-weight: 400;
+  max-width: 28rem;
+  line-height: 1.45;
+}
+
+.queens-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  justify-content: flex-end;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.queens-select {
+  appearance: none;
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  background-color: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 2.25rem 0.65rem 0.85rem;
+  min-height: 44px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%235c574f' stroke-width='1.5' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  transition: border-color 180ms var(--ease-out), background-color 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out);
+}
+
+.queens-select:hover {
+  border-color: var(--ink-muted);
+  background-color: var(--surface-hover);
+}
+
+.queens-btn {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1rem;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 180ms var(--ease-out), border-color 180ms var(--ease-out),
+    transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+
+.queens-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--ink-muted);
+}
+
+.queens-btn:active {
+  transform: scale(0.98);
+}
+
+.queens-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.queens-board-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.queens-hint {
+  font-size: 0.875rem;
+  color: var(--ink-muted);
   text-align: center;
+  max-width: 36rem;
+  line-height: 1.5;
+  min-height: 1.5em;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.queens-hint:empty {
+  display: none;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.queens-solution-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.queens-solution-label {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+@media (max-width: 640px) {
+  .queens-header {
+    flex-direction: column;
+    align-items: stretch;
   }
-  to {
-    transform: rotate(360deg);
+
+  .queens-toolbar {
+    justify-content: stretch;
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .queens-select,
+  .queens-btn {
+    flex: 1 1 auto;
+    justify-content: center;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

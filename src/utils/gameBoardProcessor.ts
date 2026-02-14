@@ -1,4 +1,4 @@
-import { IGame } from "../App";
+import { IGame } from "./common";
 import { IPosition, isPositionOutsideBoundary } from "./common";
 
 interface IgameBoardProcessingResult {
@@ -40,7 +40,7 @@ export const processGameBoard = (
     return { hasConflicts: true, queenCount };
 
   // Initialize regionQueens of boardSize to track queen count for every region
-  let regionQueens = new Array(boardSize).fill(0);
+  const regionQueens = new Array(boardSize).fill(0);
 
   // Loop over all cells and find conflicting queens
   for (let row = 0; row < boardSize; row++) {

@@ -165,7 +165,7 @@ const validRegionDirectionsGenerator = (
   size: number,
   region: number
 ): IPosition[] => {
-  let positions: IPosition[] = [];
+  const positions: IPosition[] = [];
   const row = position.row;
   const col = position.column;
 

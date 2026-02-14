@@ -6,10 +6,11 @@ interface ICastleProps {
 function Castle(props: ICastleProps) {
   const { fill, size } = props;
 
-  let castleSize = size ? `${size}px` : "20px";
+  const castleSize = size ? `${size}px` : "20px";
 
   return (
     <svg
+      aria-hidden
       fill={fill ? fill : "#FFFFFF"}
       height={castleSize}
       width={castleSize}

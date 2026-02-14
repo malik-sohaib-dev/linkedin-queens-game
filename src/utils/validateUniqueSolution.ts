@@ -49,7 +49,7 @@ export const isUniqueSolution = (
 
   for (let i = 0; i < possibleSolutionPermutations.length; i++) {
     // Initialize regionQueens of boardSize to track queen count for every region
-    let regionQueens = new Array(boardSize).fill(0);
+    const regionQueens = new Array(boardSize).fill(0);
     const queens = possibleSolutionPermutations[i];
     for (let j = 0; j < queens.length; j++) {
       const cell = gameBoard[j][Number(queens[j])];

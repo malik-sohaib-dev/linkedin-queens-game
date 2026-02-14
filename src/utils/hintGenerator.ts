@@ -5,8 +5,10 @@ export const hintGenerator = (
   boardSize: number,
   solutionLine: string
 ): { hintMesh: IHintMesh[][]; hintMessage: string } => {
+  void gameBoard;
+  void solutionLine;
   const hintMesh = new Array(boardSize).fill(0);
-  let hintMessage = "This is a lovely Message";
+  const hintMessage = "This is a lovely Message";
 
   return { hintMesh, hintMessage };
 };
