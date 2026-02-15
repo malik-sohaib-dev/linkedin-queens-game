@@ -436,6 +436,51 @@ function App() {
         </div>
       </main>
 
+      <footer className="queens-footer">
+        <p className="queens-footer__credit">
+          <span className="queens-footer__name">Malik Sohaib Ahmad</span>
+          <span className="queens-footer__role">Full Stack &amp; AI Engineer</span>
+        </p>
+        <nav
+          className="queens-footer__nav"
+          aria-label="Project and author links"
+        >
+          <a
+            className="queens-footer__link"
+            href="https://github.com/malik-sohaib-dev/linkedin-queens-game"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Source code on GitHub (opens in new tab)"
+          >
+            GitHub
+          </a>
+          <span className="queens-footer__sep" aria-hidden="true">
+            ·
+          </span>
+          <a
+            className="queens-footer__link"
+            href="https://www.linkedin.com/in/malik-sohaib/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Malik Sohaib Ahmad on LinkedIn (opens in new tab)"
+          >
+            LinkedIn
+          </a>
+          <span className="queens-footer__sep" aria-hidden="true">
+            ·
+          </span>
+          <a
+            className="queens-footer__link"
+            href="https://malik-sohaib.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Portfolio website (opens in new tab)"
+          >
+            Portfolio
+          </a>
+        </nav>
+      </footer>
+
       {tutorialOpen ? (
         <div
           className="queens-modal-root"

@@ -111,6 +111,81 @@
   min-width: 0;
 }
 
+/* Subtle author strip — keeps board as hero */
+.queens-footer {
+  margin-top: auto;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.65rem 1.25rem;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.queens-footer__credit {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+}
+
+.queens-footer__name {
+  font-weight: 500;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+.queens-footer__role {
+  font-weight: 400;
+  opacity: 0.92;
+}
+
+.queens-footer__role::before {
+  content: "·";
+  margin-right: 0.5rem;
+  opacity: 0.55;
+  font-weight: 400;
+}
+
+.queens-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.2rem;
+}
+
+.queens-footer__sep {
+  user-select: none;
+  opacity: 0.45;
+  padding: 0 0.15rem;
+}
+
+.queens-footer__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.18em;
+  padding: 0.35rem 0.2rem;
+  margin: -0.35rem -0.2rem;
+  border-radius: var(--radius-sm);
+  transition: color 160ms var(--ease-out), text-decoration-color 160ms var(--ease-out);
+}
+
+.queens-footer__link:hover {
+  color: var(--ink);
+  text-decoration-color: rgba(92, 87, 79, 0.55);
+}
+
+.queens-footer__link:active {
+  color: var(--ink);
+}
+
 .queens-boards-row {
   display: flex;
   flex-direction: column;

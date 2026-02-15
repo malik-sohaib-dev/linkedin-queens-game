@@ -5,13 +5,82 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f5f2ec" />
+
+    <!-- Primary SEO: puzzle first; creator credits subtle -->
+    <title>LinkedIn Queens Game — browser puzzle</title>
+    <meta
+      name="description"
+      content="LinkedIn-style Queens in your browser: one queen per colored region, unique rows and columns, no diagonal contact. Free. By Malik Sohaib Ahmad, Full Stack & AI Engineer."
+    />
+    <meta name="author" content="Malik Sohaib Ahmad" />
+    <link rel="canonical" href="https://linkedin-queens-game.vercel.app/" />
+    <link rel="author" href="https://malik-sohaib.vercel.app/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="LinkedIn Queens Game" />
+    <meta property="og:url" content="https://linkedin-queens-game.vercel.app/" />
+    <meta property="og:title" content="LinkedIn Queens Game" />
+    <meta
+      property="og:description"
+      content="Place one queen per region—no shared row, column, or corner-touching diagonals. Free browser puzzle."
+    />
+    <!-- Add og:image when you have a 1200×630 JPG/PNG (SVG is unreliable in link previews). -->
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="LinkedIn Queens Game" />
+    <meta
+      name="twitter:description"
+      content="LinkedIn-style Queens in the browser. One queen per region; rows, columns, and diagonals respected."
+    />
+
+    <!-- For richer previews later: copy og:image here as twitter:image -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "LinkedIn Queens Game",
+            "alternateName": "Queens",
+            "description": "Browser puzzle based on LinkedIn Queens: place one queen per colored region with at most one per row and column and no diagonally adjacent queens.",
+            "url": "https://linkedin-queens-game.vercel.app/",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "isAccessibleForFree": true,
+            "inLanguage": "en",
+            "author": {
+              "@type": "Person",
+              "name": "Malik Sohaib Ahmad",
+              "jobTitle": "Full Stack and AI Engineer",
+              "url": "https://malik-sohaib.vercel.app/",
+              "sameAs": [
+                "https://www.linkedin.com/in/malik-sohaib/",
+                "https://github.com/malik-sohaib-dev/linkedin-queens-game"
+              ]
+            },
+            "maintainer": {
+              "@type": "Person",
+              "name": "Malik Sohaib Ahmad",
+              "url": "https://malik-sohaib.vercel.app/"
+            },
+            "codeRepository": "https://github.com/malik-sohaib-dev/linkedin-queens-game"
+          }
+        ]
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap"
       rel="stylesheet"
     />
-    <title>Queens</title>
   </head>
   <body>
     <div id="root"></div>
