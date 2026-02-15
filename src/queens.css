@@ -2,15 +2,17 @@
   cursor: default;
 }
 
-.parent--static .child:hover {
-  filter: none;
+.parent--generating {
+  pointer-events: none;
+  opacity: 0.58;
 }
 
 .parent {
   display: grid;
   grid-column-gap: 0;
   grid-row-gap: 0;
-  width: min(92vw, 72vh, 560px);
+  width: 100%;
+  max-width: min(92vw, 72vh, 560px);
   aspect-ratio: 1;
   margin: 0;
   border-radius: var(--radius-md);

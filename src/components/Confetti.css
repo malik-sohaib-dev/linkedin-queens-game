@@ -1,0 +1,48 @@
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1002;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -12vh;
+  left: var(--left);
+  width: var(--pw);
+  height: var(--ph);
+  background: var(--pc);
+  opacity: 0.95;
+  animation: confetti-fall var(--duration) linear var(--delay) forwards;
+  will-change: transform;
+}
+
+.confetti-piece--ribbon {
+  border-radius: 1px;
+}
+
+.confetti-piece--rect {
+  border-radius: 2px;
+}
+
+.confetti-piece--round {
+  border-radius: 50%;
+  width: var(--pw);
+  height: var(--pw);
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate3d(0, 0, 1, 0deg);
+  }
+  100% {
+    transform: translate3d(var(--drift), 120vh, 0) rotate3d(1, 1, 0, var(--spin));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-layer {
+    display: none;
+  }
+}

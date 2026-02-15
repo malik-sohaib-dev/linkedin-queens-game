@@ -1,33 +1,36 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import type { CSSProperties } from "react";
 import "./App.css";
 import "./queens.css";
 import Castle from "./components/Castle";
+import { Confetti } from "./components/Confetti";
 import {
   IBox,
   IGame,
   IGamePatch,
-  IHintMesh,
   generateGameSolutionBoard,
   processGameBoard,
 } from "./utils";
-import { hintGenerator } from "./utils/hintGenerator";
-
-let setTimeoutId: undefined | number = undefined;
 
 function App() {
   const [game, setGame] = useState<IGame[][]>([]);
-  const [, setHintMesh] = useState<IHintMesh[][]>([]);
-  const [hintMessage, setHintMessage] = useState(
-    ""
-  );
   const [solvedGame, setSolvedgame] = useState<IBox[][]>([]);
   const [, setToggle] = useState(false); // @Todo get rid of this
   const [mouseDown, setMouseDown] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [victory, setVictory] = useState(false);
   const [boardSize, setBoardSize] = useState(5); // Default board size of 5
-  const [queenString, setQueenString] = useState("");
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [confettiActive, setConfettiActive] = useState(false);
+  const [confettiBurst, setConfettiBurst] = useState(0);
+  const tutorialCloseRef = useRef<HTMLButtonElement>(null);
+  const celebrationCloseRef = useRef<HTMLButtonElement>(null);
   const boardReference = useRef<HTMLDivElement>(null);
+  const boardSizeRef = useRef(boardSize);
+  boardSizeRef.current = boardSize;
+  const boardGenIdRef = useRef(0);
   /* Muted gallery palette: distinct regions, minimal saturation */
   const colors = [
     "#e8e4dd",
@@ -45,17 +48,32 @@ function App() {
   const queenConflictFill = "#9b3d38";
 
   const boardSizes = [5, 6, 7, 8, 9, 10];
+  const castleSize = 28;
+
+  const runBoardGeneration = useCallback(() => {
+    const myId = ++boardGenIdRef.current;
+    setIsGenerating(true);
+    const size = boardSizeRef.current;
+    requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        try {
+          if (myId !== boardGenIdRef.current) return;
+          const { solutionBoard } = generateGameSolutionBoard(size);
+          if (myId !== boardGenIdRef.current) return;
+          setSolvedgame(solutionBoard);
+        } finally {
+          if (myId === boardGenIdRef.current) {
+            setIsGenerating(false);
+          }
+        }
+      }, 0);
+    });
+  }, []);
 
   // Generate new game solution board if boardSize changes
   useEffect(() => {
-    const { queenString, solutionBoard } = generateGameSolutionBoard(boardSize);
-    setQueenString(queenString);
-    setSolvedgame(solutionBoard);
-
-    if (solvedGame.length === boardSize) {
-      clearBoard();
-    }
-  }, [boardSize]);
+    runBoardGeneration();
+  }, [boardSize, runBoardGeneration]);
 
   // Initialize the game board with regions
   useEffect(() => {
@@ -63,17 +81,55 @@ function App() {
     clearBoard();
   }, [solvedGame]);
 
-  const victoryCelebration = () => {
-    if (victory) alert("Victory!!!");
-  };
+  useEffect(() => {
+    if (!victory) {
+      setCelebrationOpen(false);
+      return;
+    }
+    const showId = window.setTimeout(() => setCelebrationOpen(true), 480);
+    return () => clearTimeout(showId);
+  }, [victory]);
 
   useEffect(() => {
-    if (victory) {
-      setTimeoutId = setTimeout(victoryCelebration, 500);
-    } else {
-      clearTimeout(setTimeoutId);
+    if (!victory) {
+      setConfettiActive(false);
+      return;
     }
+    setConfettiBurst((k) => k + 1);
+    setConfettiActive(true);
+    const t = window.setTimeout(() => setConfettiActive(false), 7500);
+    return () => clearTimeout(t);
   }, [victory]);
+
+  useEffect(() => {
+    if (!tutorialOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setTutorialOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const id = window.requestAnimationFrame(() => {
+      tutorialCloseRef.current?.focus();
+    });
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      window.cancelAnimationFrame(id);
+    };
+  }, [tutorialOpen]);
+
+  useEffect(() => {
+    if (!celebrationOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCelebrationOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const id = window.requestAnimationFrame(() => {
+      celebrationCloseRef.current?.focus();
+    });
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      window.cancelAnimationFrame(id);
+    };
+  }, [celebrationOpen]);
 
   // Add event listners on Game Board to have multiselect functionality
   useEffect(() => {
@@ -155,34 +211,37 @@ function App() {
   };
 
   const recreate = () => {
-    const { queenString, solutionBoard } = generateGameSolutionBoard(boardSize);
-    setQueenString(queenString);
-    setSolvedgame(solutionBoard);
+    if (isGenerating) return;
+    runBoardGeneration();
   };
 
   const setBoardSizeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isGenerating) return;
     const size = Number(e.target.value);
     if (size >= 5) setBoardSize(size);
   };
 
-  const getHint = () => {
-    const { hintMesh, hintMessage } = hintGenerator(
-      game,
-      boardSize,
-      queenString
-    );
-    setHintMesh(hintMesh);
-    setHintMessage(hintMessage);
+  const dismissCelebration = () => setCelebrationOpen(false);
+
+  const celebrateNewPuzzle = () => {
+    dismissCelebration();
+    runBoardGeneration();
   };
 
   return (
     <div className="queens-app">
+      <Confetti active={confettiActive} burstKey={confettiBurst} />
+      <div className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {victory ? "Puzzle solved." : ""}
+      </div>
+      {isGenerating ? (
+        <p className="queens-generating-banner" role="status" aria-live="polite">
+          Crafting a new puzzle…
+        </p>
+      ) : null}
       <header className="queens-header">
         <div className="queens-brand">
           <h1 className="queens-title">Queens</h1>
-          <p className="queens-tagline">
-            One queen per row, column, and region—with no two queens touching.
-          </p>
         </div>
         <div className="queens-toolbar">
           <label className="visually-hidden" htmlFor="queens-board-size">
@@ -191,7 +250,8 @@ function App() {
           <select
             id="queens-board-size"
             className="queens-select"
-            defaultValue={boardSize}
+            value={boardSize}
+            disabled={isGenerating}
             onChange={(e) => {
               setBoardSizeHandler(e);
             }}
@@ -205,114 +265,282 @@ function App() {
               </option>
             ))}
           </select>
-          <button type="button" className="queens-btn" onClick={clearBoard}>
+          <button
+            type="button"
+            className="queens-btn"
+            disabled={isGenerating}
+            onClick={clearBoard}
+          >
             Restart
-          </button>
-          <button type="button" className="queens-btn" onClick={recreate}>
-            New puzzle
           </button>
           <button
             type="button"
             className="queens-btn"
+            disabled={isGenerating}
+            onClick={recreate}
+          >
+            {isGenerating ? "Generating…" : "New puzzle"}
+          </button>
+          <button
+            type="button"
+            className="queens-btn"
+            disabled={isGenerating}
             onClick={() => {
               setShowSolution((prev) => !prev);
             }}
           >
             {showSolution ? "Hide solution" : "Solution"}
           </button>
-          <button type="button" className="queens-btn" onClick={getHint}>
-            Hint
+          <button
+            type="button"
+            className="queens-btn"
+            onClick={() => setTutorialOpen(true)}
+          >
+            How to play
           </button>
         </div>
       </header>
 
-      <main className="queens-main">
-        <div className="queens-board-wrap">
-          <div
-            className="parent"
-            style={{
-              gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
-              gridTemplateRows: `repeat(${boardSize}, 1fr)`,
-            }}
-            ref={boardReference}
-          >
-            {game.length > 0 &&
-              game.map((row, i) => {
-                return row.map((box, j) => {
-                  return (
-                    <div
-                      onMouseEnter={() => handleDrag(i, j)}
-                      onClick={() => handleClick(i, j)}
-                      key={j}
-                      className={
-                        "child" + (box.conflict ? " child--conflict" : "")
-                      }
-                      style={{
-                        backgroundColor:
-                          typeof box.region === "number"
-                            ? colors[box.region] ?? "#e8e4dd"
-                            : "#c45c4a",
-                      }}
-                    >
-                      {box.isQueen ? (
-                        <Castle
-                          size={28}
-                          fill={
-                            box.conflict ? queenConflictFill : queenFill
-                          }
-                        />
-                      ) : (
-                        box.isBlank && <div className="dot" />
-                      )}
-                    </div>
-                  );
-                });
-              })}
-          </div>
-        </div>
-
-        {hintMessage ? (
-          <p className="queens-hint">{hintMessage}</p>
-        ) : null}
-
-        {showSolution && (
-          <div className="queens-solution-block">
-            <span className="queens-solution-label">Reference</span>
+      <main className="queens-main" aria-busy={isGenerating}>
+        <div
+          className={
+            "queens-boards-row" +
+            (showSolution ? " queens-boards-row--solution-visible" : "")
+          }
+        >
+          <div className="queens-board-cell queens-board-cell--play">
             <div
-              className="parent parent--static"
-              style={{
-                gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
-                gridTemplateRows: `repeat(${boardSize}, 1fr)`,
-              }}
+              className={
+                "queens-board-wrap" +
+                (isGenerating ? " queens-board-wrap--generating" : "")
+              }
             >
-              {solvedGame.length > 0 &&
-                solvedGame.map((row) => {
-                  return row.map((box, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className="child"
-                        style={{
-                          backgroundColor:
-                            typeof box.region === "number"
-                              ? colors[box.region] ?? "#e8e4dd"
-                              : "#c45c4a",
-                        }}
-                      >
-                        {box.isQueenPossible &&
-                        typeof box.queenIndex === "number" ? (
-                          <Castle size={28} fill={queenFill} />
-                        ) : (
-                          <div className="dot" />
-                        )}
-                      </div>
-                    );
-                  });
-                })}
+              <div
+                className={"parent" + (isGenerating ? " parent--generating" : "")}
+                style={{
+                  gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
+                  gridTemplateRows: `repeat(${boardSize}, 1fr)`,
+                }}
+                ref={boardReference}
+              >
+                {game.length > 0 &&
+                  game.map((row, i) => {
+                    return row.map((box, j) => {
+                      return (
+                        <div
+                          onMouseEnter={() => handleDrag(i, j)}
+                          onClick={() => handleClick(i, j)}
+                          key={j}
+                          className={
+                            "child" +
+                            (box.conflict ? " child--conflict" : "")
+                          }
+                          style={{
+                            backgroundColor:
+                              typeof box.region === "number"
+                                ? colors[box.region] ?? "#e8e4dd"
+                                : "#c45c4a",
+                          }}
+                        >
+                          {box.isQueen ? (
+                            <Castle
+                              size={castleSize}
+                              fill={
+                                box.conflict
+                                  ? queenConflictFill
+                                  : queenFill
+                              }
+                            />
+                          ) : (
+                            box.isBlank && <div className="dot" />
+                          )}
+                        </div>
+                      );
+                    });
+                  })}
+              </div>
             </div>
           </div>
-        )}
+
+          <div
+            className="queens-board-cell queens-board-solution-cell"
+            aria-hidden={!showSolution}
+            inert={!showSolution ? true : undefined}
+          >
+            <div
+              className="queens-solution-inner"
+              role="region"
+              aria-label="Solution reference"
+            >
+              <div className="queens-reference-frame">
+                <div
+                  className="parent parent--static"
+                  style={{
+                    gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
+                    gridTemplateRows: `repeat(${boardSize}, 1fr)`,
+                  }}
+                >
+                  {solvedGame.length > 0 &&
+                    solvedGame.map((row) => {
+                      return row.map((box, i) => {
+                        return (
+                          <div
+                            key={i}
+                            className="child"
+                            style={{
+                              backgroundColor:
+                                typeof box.region === "number"
+                                  ? colors[box.region] ?? "#e8e4dd"
+                                  : "#c45c4a",
+                            }}
+                          >
+                            {box.isQueenPossible &&
+                            typeof box.queenIndex === "number" ? (
+                              <Castle size={castleSize} fill={queenFill} />
+                            ) : (
+                              <div className="dot" />
+                            )}
+                          </div>
+                        );
+                      });
+                    })}
+                </div>
+              </div>
+              <p className="queens-reference-hint" aria-hidden="true">
+                Answer key
+              </p>
+            </div>
+          </div>
+        </div>
       </main>
+
+      {tutorialOpen ? (
+        <div
+          className="queens-modal-root"
+          role="presentation"
+          onClick={() => setTutorialOpen(false)}
+        >
+          <div
+            className="queens-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tutorial-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="queens-modal-header">
+              <h2 id="tutorial-title" className="queens-modal-title">
+                How to play
+              </h2>
+              <button
+                ref={tutorialCloseRef}
+                type="button"
+                className="queens-modal-close"
+                onClick={() => setTutorialOpen(false)}
+                aria-label="Close tutorial"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="queens-modal-body">
+              <p className="queens-modal-lead">
+                Place exactly one queen in every row and column. Each colored
+                region must also contain exactly one queen.
+              </p>
+              <ul className="queens-modal-list">
+                <li>
+                  <strong>No attacks.</strong> Queens cannot share a row or
+                  column (like classic queens).
+                </li>
+                <li>
+                  <strong>No touching.</strong> Queens cannot sit on adjacent
+                  squares, including diagonally.
+                </li>
+                <li>
+                  <strong>Regions.</strong> The tinted areas are regions—use
+                  each color once per queen.
+                </li>
+              </ul>
+              <p className="queens-modal-note">
+                Tap a cell to cycle: empty → marker (dot) → queen. Drag with
+                the pointer held down to paint markers. Use{" "}
+                <em>Restart</em> to clear your moves or <em>New puzzle</em>{" "}
+                for a different layout at the same size.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {celebrationOpen ? (
+        <div
+          className="queens-celebration-root"
+          role="presentation"
+          onClick={dismissCelebration}
+        >
+          <div
+            className="queens-celebration-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="celebration-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="queens-celebration-sparkles" aria-hidden="true">
+              {Array.from({ length: 10 }, (_, i) => (
+                <span
+                  key={i}
+                  className="queens-celebration-sparkle"
+                  style={{ "--sparkle-i": i } as CSSProperties}
+                />
+              ))}
+            </div>
+            <button
+              ref={celebrationCloseRef}
+              type="button"
+              className="queens-celebration-dismiss"
+              onClick={dismissCelebration}
+              aria-label="Close celebration"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+            <div className="queens-celebration-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M14 24.5l7 7 13-14"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <h2 id="celebration-title" className="queens-celebration-title">
+              Perfectly placed
+            </h2>
+            <p className="queens-celebration-text">
+              Every row, column, and region holds exactly one queen—with no two
+              touching. A quiet kind of triumph.
+            </p>
+            <div className="queens-celebration-actions">
+              <button
+                type="button"
+                className="queens-btn queens-celebration-primary"
+                disabled={isGenerating}
+                onClick={celebrateNewPuzzle}
+              >
+                {isGenerating ? "Generating…" : "New puzzle"}
+              </button>
+              <button
+                type="button"
+                className="queens-btn"
+                onClick={dismissCelebration}
+              >
+                Admire the board
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
