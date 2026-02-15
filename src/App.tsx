@@ -234,11 +234,6 @@ function App() {
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
         {victory ? "Puzzle solved." : ""}
       </div>
-      {isGenerating ? (
-        <p className="queens-generating-banner" role="status" aria-live="polite">
-          Crafting a new puzzle…
-        </p>
-      ) : null}
       <header className="queens-header">
         <div className="queens-brand">
           <h1 className="queens-title">Queens</h1>
@@ -359,6 +354,33 @@ function App() {
                     });
                   })}
               </div>
+              {isGenerating ? (
+                <div
+                  className="queens-board-loader"
+                  role="status"
+                  aria-live="polite"
+                  aria-busy="true"
+                >
+                  <div className="queens-board-loader__card">
+                    <div className="queens-board-loader__emblem" aria-hidden="true">
+                      <span className="queens-board-loader__orbit queens-board-loader__orbit--outer" />
+                      <span className="queens-board-loader__orbit queens-board-loader__orbit--inner" />
+                      <Castle size={34} fill={queenFill} />
+                    </div>
+                    <p className="queens-board-loader__title">
+                      Crafting a new puzzle
+                    </p>
+                    <p className="queens-board-loader__hint">
+                      Shuffling regions and crown placements
+                    </p>
+                    <div className="queens-board-loader__mini-grid" aria-hidden="true">
+                      {Array.from({ length: 9 }, (_, i) => (
+                        <span key={i} className="queens-board-loader__mini-cell" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
 
