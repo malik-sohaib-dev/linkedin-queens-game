@@ -28,6 +28,7 @@ function App() {
   const tutorialCloseRef = useRef<HTMLButtonElement>(null);
   const celebrationCloseRef = useRef<HTMLButtonElement>(null);
   const boardReference = useRef<HTMLDivElement>(null);
+  const meshBgRef = useRef<HTMLDivElement>(null);
   const boardSizeRef = useRef(boardSize);
   boardSizeRef.current = boardSize;
   const boardGenIdRef = useRef(0);
@@ -74,6 +75,71 @@ function App() {
   useEffect(() => {
     runBoardGeneration();
   }, [boardSize, runBoardGeneration]);
+
+  // Background mesh: subtle parallax opposite pointer (respect reduced motion)
+  useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduceMotion.matches) return;
+
+    const maxShift = 22;
+    const lerp = 0.14;
+    const settle = 0.02;
+    const target = { x: 0, y: 0 };
+    const current = { x: 0, y: 0 };
+    let rafId = 0;
+
+    const apply = () => {
+      const el = meshBgRef.current;
+      if (el) {
+        el.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
+      }
+    };
+
+    const tick = () => {
+      const dx = target.x - current.x;
+      const dy = target.y - current.y;
+      if (Math.abs(dx) < settle && Math.abs(dy) < settle) {
+        current.x = target.x;
+        current.y = target.y;
+        apply();
+        rafId = 0;
+        return;
+      }
+      current.x += dx * lerp;
+      current.y += dy * lerp;
+      apply();
+      rafId = window.requestAnimationFrame(tick);
+    };
+
+    const ensureLoop = () => {
+      if (rafId === 0) rafId = window.requestAnimationFrame(tick);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      const nx = (e.clientX / w - 0.5) * 2;
+      const ny = (e.clientY / h - 0.5) * 2;
+      target.x = -nx * maxShift;
+      target.y = -ny * maxShift;
+      ensureLoop();
+    };
+
+    const onPointerLeaveDoc = () => {
+      target.x = 0;
+      target.y = 0;
+      ensureLoop();
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onPointerLeaveDoc);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      document.documentElement.removeEventListener("pointerleave", onPointerLeaveDoc);
+      if (rafId !== 0) window.cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   // Initialize the game board with regions
   useEffect(() => {
@@ -229,7 +295,9 @@ function App() {
   };
 
   return (
-    <div className="queens-app">
+    <>
+      <div className="queens-mesh-bg" ref={meshBgRef} aria-hidden="true" />
+      <div className="queens-app">
       <Confetti active={confettiActive} burstKey={confettiBurst} />
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
         {victory ? "Puzzle solved." : ""}
@@ -609,6 +677,7 @@ function App() {
         </div>
       ) : null}
     </div>
+    </>
   );
 }
 

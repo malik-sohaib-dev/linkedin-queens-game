@@ -1,4 +1,33 @@
+/* Fixed mesh behind page; parallax via inline transform in App */
+.queens-mesh-bg {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  top: -12%;
+  left: -12%;
+  width: 124%;
+  height: 124%;
+  background-image: linear-gradient(
+      to right,
+      rgba(26, 23, 20, 0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(26, 23, 20, 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  background-position: 0 0;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queens-mesh-bg {
+    will-change: auto;
+  }
+}
+
 .queens-app {
+  position: relative;
+  z-index: 1;
   min-height: 100dvh;
   padding: clamp(1.25rem, 4vw, 2.75rem);
   max-width: min(100%, 1280px);
