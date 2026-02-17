@@ -48,7 +48,18 @@
 }
 
 .queens-brand {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
   text-align: left;
+}
+
+.queens-brand-logo {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 6px;
+  color: var(--ink);
 }
 
 .queens-title {

@@ -304,6 +304,7 @@ function App() {
       </div>
       <header className="queens-header">
         <div className="queens-brand">
+          <Castle className="queens-brand-logo" size={34} fill="currentColor" />
           <h1 className="queens-title">Queens</h1>
         </div>
         <div className="queens-toolbar">
