@@ -10,7 +10,18 @@ import {
   IGamePatch,
   generateGameSolutionBoard,
   processGameBoard,
+  queensCellBorderStyle,
 } from "./utils";
+
+function formatSolveTime(ms: number): string {
+  if (!Number.isFinite(ms) || ms < 0) return "0:00.0";
+  const secs = ms / 1000;
+  const mm = Math.floor(secs / 60);
+  const ss = secs % 60;
+  const whole = Math.floor(ss);
+  const tenths = Math.floor((ss - whole) * 10 + 1e-6);
+  return `${mm}:${String(whole).padStart(2, "0")}.${tenths}`;
+}
 
 function App() {
   const [game, setGame] = useState<IGame[][]>([]);
@@ -29,21 +40,31 @@ function App() {
   const celebrationCloseRef = useRef<HTMLButtonElement>(null);
   const boardReference = useRef<HTMLDivElement>(null);
   const meshBgRef = useRef<HTMLDivElement>(null);
+  const solveStartRef = useRef<number | null>(null);
   const boardSizeRef = useRef(boardSize);
   boardSizeRef.current = boardSize;
   const boardGenIdRef = useRef(0);
-  /* Muted gallery palette: distinct regions, minimal saturation */
+  const [solveElapsedMs, setSolveElapsedMs] = useState(0);
+  const [solveTimerNonce, setSolveTimerNonce] = useState(0);
+
+  const resetSolveTimer = useCallback(() => {
+    solveStartRef.current = null;
+    setSolveElapsedMs(0);
+    setSolveTimerNonce((n) => n + 1);
+  }, []);
+
+  /* Hue spread: no near-duplicates (cyan vs periwinkle, jade vs mint, gold vs celery, rose vs lilac) */
   const colors = [
-    "#e8e4dd",
-    "#dde6df",
-    "#e6dfe8",
-    "#dfe7ee",
-    "#ebe4d6",
-    "#d2dfd8",
-    "#ebe0e4",
-    "#d6e0e6",
-    "#e6e6d9",
-    "#cfd8e0",
+    "#e8e0d4", // sand
+    "#a8cfbc", // jade (cooler / duller than mint)
+    "#ddd0eb", // lilac (violet; not pink)
+    "#b8e3f2", // cyan sky
+    "#edd78f", // amber
+    "#c5edd8", // light mint (yellow-green bias vs jade)
+    "#e8bcc8", // rose (single blush)
+    "#a8b8e8", // periwinkle (blue-violet vs cyan)
+    "#dce6b0", // celery / yellow-green
+    "#cfc8d8", // mauve-gray
   ];
   const queenFill = "#1a1714";
   const queenConflictFill = "#9b3d38";
@@ -143,9 +164,21 @@ function App() {
 
   // Initialize the game board with regions
   useEffect(() => {
+    resetSolveTimer();
     setVictory(false);
     clearBoard();
-  }, [solvedGame]);
+  }, [solvedGame, resetSolveTimer]);
+
+  useEffect(() => {
+    if (victory) return;
+    if (solveStartRef.current === null) return;
+    const tick = () => {
+      setSolveElapsedMs(performance.now() - solveStartRef.current!);
+    };
+    tick();
+    const id = window.setInterval(tick, 100);
+    return () => clearInterval(id);
+  }, [victory, solveTimerNonce]);
 
   useEffect(() => {
     if (!victory) {
@@ -216,6 +249,10 @@ function App() {
 
   // Unified place to set gameboard
   const handleGameChange = (row: number, col: number, changes: IGamePatch) => {
+    if (solveStartRef.current === null) {
+      solveStartRef.current = performance.now();
+      setSolveTimerNonce((n) => n + 1);
+    }
     const newgameBoard = game;
     newgameBoard[row][col] = { ...newgameBoard[row][col], ...changes };
     const { hasConflicts, queenCount } = processGameBoard(
@@ -224,6 +261,9 @@ function App() {
     );
     setGame(newgameBoard);
     if (!hasConflicts && queenCount === boardSize) {
+      if (solveStartRef.current !== null) {
+        setSolveElapsedMs(performance.now() - solveStartRef.current);
+      }
       setVictory(true);
     } else {
       setVictory(false);
@@ -256,6 +296,7 @@ function App() {
 
   // Populate the game board with just the regions
   const clearBoard = () => {
+    resetSolveTimer();
     if (solvedGame.length !== boardSize) return;
     const gameBoard: IGame[][] = [];
     // Process Solution board and make player game board
@@ -300,12 +341,23 @@ function App() {
       <div className="queens-app">
       <Confetti active={confettiActive} burstKey={confettiBurst} />
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
-        {victory ? "Puzzle solved." : ""}
+        {victory
+          ? `Puzzle solved. Time ${formatSolveTime(solveElapsedMs)}.`
+          : ""}
       </div>
       <header className="queens-header">
         <div className="queens-brand">
           <Castle className="queens-brand-logo" size={34} fill="currentColor" />
           <h1 className="queens-title">Queens</h1>
+        </div>
+        <div className="queens-timer" aria-hidden="true">
+          <span className="queens-timer__label">Time</span>
+          <time
+            className="queens-timer__value"
+            dateTime={`PT${(solveElapsedMs / 1000).toFixed(1)}S`}
+          >
+            {formatSolveTime(solveElapsedMs)}
+          </time>
         </div>
         <div className="queens-toolbar">
           <label className="visually-hidden" htmlFor="queens-board-size">
@@ -400,6 +452,7 @@ function App() {
                             (box.conflict ? " child--conflict" : "")
                           }
                           style={{
+                            ...queensCellBorderStyle(game, i, j, boardSize),
                             backgroundColor:
                               typeof box.region === "number"
                                 ? colors[box.region] ?? "#e8e4dd"
@@ -472,13 +525,19 @@ function App() {
                   }}
                 >
                   {solvedGame.length > 0 &&
-                    solvedGame.map((row) => {
-                      return row.map((box, i) => {
+                    solvedGame.map((solutionRow, ri) => {
+                      return solutionRow.map((box, ci) => {
                         return (
                           <div
-                            key={i}
+                            key={`${ri}-${ci}`}
                             className="child"
                             style={{
+                              ...queensCellBorderStyle(
+                                solvedGame,
+                                ri,
+                                ci,
+                                boardSize,
+                              ),
                               backgroundColor:
                                 typeof box.region === "number"
                                   ? colors[box.region] ?? "#e8e4dd"
@@ -653,6 +712,12 @@ function App() {
             <h2 id="celebration-title" className="queens-celebration-title">
               Perfectly placed
             </h2>
+            <p className="queens-celebration-time">
+              <span className="queens-celebration-time__label">Your time</span>
+              <span className="queens-celebration-time__value">
+                {formatSolveTime(solveElapsedMs)}
+              </span>
+            </p>
             <p className="queens-celebration-text">
               Every row, column, and region holds exactly one queen—with no two
               touching. A quiet kind of triumph.

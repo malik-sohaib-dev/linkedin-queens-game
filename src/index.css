@@ -14,7 +14,14 @@
   --danger: #9b3d38;
   --focus-ring: rgba(42, 38, 34, 0.35);
 
-  --dot: rgba(26, 23, 20, 0.28);
+  --dot: rgba(26, 23, 20, 0.38);
+
+  /* Game grid: darker than page chrome --line so cells read clearly */
+  --board-grid: rgba(26, 23, 20, 0.26);
+
+  --board-border-outer: 2px solid rgba(26, 23, 20, 0.5);
+  --board-border-region: 2px solid rgba(26, 23, 20, 0.4);
+  --board-border-inner: 1px solid rgba(26, 23, 20, 0.16);
 
   --font-display: "Fraunces", "Georgia", serif;
   --font-ui: "DM Sans", system-ui, sans-serif;
@@ -36,6 +43,18 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --line: rgba(26, 23, 20, 0.28);
+    --line-strong: rgba(26, 23, 20, 0.42);
+    --dot: rgba(26, 23, 20, 0.52);
+    --board-grid: rgba(26, 23, 20, 0.46);
+    --board-border-outer: 3px solid rgba(26, 23, 20, 0.62);
+    --board-border-region: 3px solid rgba(26, 23, 20, 0.52);
+    --board-border-inner: 2px solid rgba(26, 23, 20, 0.32);
+  }
 }
 
 *,

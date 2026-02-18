@@ -73,6 +73,46 @@
   color: var(--ink);
 }
 
+.queens-timer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-height: 44px;
+  justify-content: flex-end;
+  padding-bottom: 0.2rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 641px) {
+  .queens-timer {
+    margin-inline: 0;
+    align-items: center;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
+
+.queens-timer__label {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  line-height: 1;
+}
+
+.queens-timer__value {
+  font-family: var(--font-ui);
+  font-size: clamp(1.125rem, 2.8vw, 1.375rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
 .queens-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -820,6 +860,30 @@
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.15;
+  color: var(--ink);
+}
+
+.queens-celebration-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0 0 1rem;
+}
+
+.queens-celebration-time__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.queens-celebration-time__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
   color: var(--ink);
 }
 

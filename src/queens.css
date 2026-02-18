@@ -15,16 +15,15 @@
   max-width: min(92vw, 72vh, 560px);
   aspect-ratio: 1;
   margin: 0;
-  border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-board);
-  background-color: var(--line);
-  gap: 1px;
+  background-color: var(--paper);
+  gap: 0;
   touch-action: manipulation;
 }
 
 .child {
-  border: none;
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,10 +42,11 @@
 }
 
 .dot {
-  width: min(22%, 18px);
+  width: min(26%, 22px);
   aspect-ratio: 1;
   border-radius: 50%;
   background-color: var(--dot);
+  box-shadow: inset 0 0 0 1px rgba(26, 23, 20, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -56,5 +56,15 @@
 
   .child:hover {
     filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .child--conflict {
+    box-shadow: inset 0 0 0 3px var(--danger);
+  }
+
+  .dot {
+    box-shadow: inset 0 0 0 1px rgba(26, 23, 20, 0.38);
   }
 }
