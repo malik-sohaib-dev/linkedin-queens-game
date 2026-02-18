@@ -3,6 +3,14 @@ import type { CSSProperties } from "react";
 import "./App.css";
 import "./queens.css";
 import Castle from "./components/Castle";
+import {
+  IconBookOpen,
+  IconEye,
+  IconEyeSlash,
+  IconNewPuzzle,
+  IconRestart,
+  IconSpinner,
+} from "./components/GameIcons";
 import { Confetti } from "./components/Confetti";
 import {
   IBox,
@@ -346,75 +354,98 @@ function App() {
           : ""}
       </div>
       <header className="queens-header">
-        <div className="queens-brand">
-          <Castle className="queens-brand-logo" size={34} fill="currentColor" />
-          <h1 className="queens-title">Queens</h1>
+        <div className="queens-header__start">
+          <div className="queens-brand">
+            <Castle className="queens-brand-logo" size={34} fill="currentColor" />
+            <h1 className="queens-title">Queens</h1>
+          </div>
         </div>
-        <div className="queens-timer" aria-hidden="true">
-          <span className="queens-timer__label">Time</span>
-          <time
-            className="queens-timer__value"
-            dateTime={`PT${(solveElapsedMs / 1000).toFixed(1)}S`}
-          >
-            {formatSolveTime(solveElapsedMs)}
-          </time>
+        <div className="queens-header__center">
+          <div className="queens-timer" aria-hidden="true">
+            <span className="queens-timer__label">Time</span>
+            <time
+              className="queens-timer__value"
+              dateTime={`PT${(solveElapsedMs / 1000).toFixed(1)}S`}
+            >
+              {formatSolveTime(solveElapsedMs)}
+            </time>
+          </div>
         </div>
-        <div className="queens-toolbar">
-          <label className="visually-hidden" htmlFor="queens-board-size">
-            Board size
-          </label>
-          <select
-            id="queens-board-size"
-            className="queens-select"
-            value={boardSize}
-            disabled={isGenerating}
-            onChange={(e) => {
-              setBoardSizeHandler(e);
-            }}
+        <nav
+          className="queens-header__end queens-toolbar queens-toolbar--icons"
+          aria-label="Game controls"
+        >
+          <div className="queens-header__board-size">
+            <label className="visually-hidden" htmlFor="queens-board-size">
+              Board size
+            </label>
+            <select
+              id="queens-board-size"
+              className="queens-select"
+              value={boardSize}
+              disabled={isGenerating}
+              onChange={(e) => {
+                setBoardSizeHandler(e);
+              }}
+            >
+              {boardSizes.map((val, i) => (
+                <option key={i} value={val}>
+                  {val}×{val}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div
+            className="queens-icon-tray"
+            role="group"
+            aria-label="Puzzle actions"
           >
-            <option disabled value="">
-              Grid size
-            </option>
-            {boardSizes.map((val, i) => (
-              <option key={i} value={val}>
-                {val} × {val}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="queens-btn"
-            disabled={isGenerating}
-            onClick={clearBoard}
-          >
-            Restart
-          </button>
-          <button
-            type="button"
-            className="queens-btn"
-            disabled={isGenerating}
-            onClick={recreate}
-          >
-            {isGenerating ? "Generating…" : "New puzzle"}
-          </button>
-          <button
-            type="button"
-            className="queens-btn"
-            disabled={isGenerating}
-            onClick={() => {
-              setShowSolution((prev) => !prev);
-            }}
-          >
-            {showSolution ? "Hide solution" : "Solution"}
-          </button>
-          <button
-            type="button"
-            className="queens-btn"
-            onClick={() => setTutorialOpen(true)}
-          >
-            How to play
-          </button>
-        </div>
+            <button
+              type="button"
+              className="queens-icon-btn"
+              disabled={isGenerating}
+              data-tooltip="Clear queens and markers"
+              onClick={clearBoard}
+              aria-label="Restart puzzle"
+            >
+              <IconRestart />
+            </button>
+            <button
+              type="button"
+              className="queens-icon-btn"
+              disabled={isGenerating}
+              data-tooltip="New puzzle at this board size"
+              onClick={recreate}
+              aria-label={isGenerating ? "Generating new puzzle" : "New puzzle"}
+            >
+              {isGenerating ? <IconSpinner /> : <IconNewPuzzle />}
+            </button>
+            <button
+              type="button"
+              className="queens-icon-btn"
+              disabled={isGenerating}
+              data-tooltip={
+                showSolution ? "Hide answer key" : "Show answer key"
+              }
+              onClick={() => {
+                setShowSolution((prev) => !prev);
+              }}
+              aria-label={showSolution ? "Hide solution" : "Show solution"}
+              aria-pressed={showSolution}
+            >
+              {showSolution ? <IconEyeSlash /> : <IconEye />}
+            </button>
+            <button
+              type="button"
+              className="queens-icon-btn"
+              data-tooltip="Rules and tips"
+              onClick={() => setTutorialOpen(true)}
+              aria-label="How to play"
+            >
+              <IconBookOpen />
+            </button>
+          </div>
+        </nav>
       </header>
 
       <main className="queens-main" aria-busy={isGenerating}>
