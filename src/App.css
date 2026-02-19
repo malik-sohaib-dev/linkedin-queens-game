@@ -234,7 +234,7 @@
   z-index: 2;
 }
 
-/* Custom tooltips: hover (fine pointer) + keyboard focus — width follows text, not the icon */
+/* Custom tooltips: hover (fine pointer) + keyboard focus; width follows text, not the icon */
 .queens-icon-btn[data-tooltip]::after {
   content: attr(data-tooltip);
   display: block;
@@ -371,7 +371,7 @@
   min-width: 0;
 }
 
-/* Subtle author strip — keeps board as hero */
+/* Subtle author strip; keeps board as hero */
 .queens-footer {
   margin-top: auto;
   padding-top: 1.15rem;
@@ -603,6 +603,72 @@
     rgba(235, 230, 220, 0.55) 45%,
     rgba(26, 23, 20, 0.07) 100%
   );
+}
+
+.queens-board-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.65rem, 4vw, 1.25rem);
+  border-radius: var(--radius-md);
+  background: rgba(22, 20, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 0 1px rgba(255, 252, 247, 0.06);
+}
+
+.queens-board-reveal__card {
+  max-width: 18rem;
+  width: 100%;
+  padding: 1.2rem 1.35rem 1.3rem;
+  text-align: center;
+  border-radius: calc(var(--radius-md) + 2px);
+  background: rgba(255, 252, 247, 0.94);
+  box-shadow:
+    0 22px 56px -28px rgba(26, 23, 20, 0.42),
+    0 0 0 1px rgba(26, 23, 20, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.queens-board-reveal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.queens-board-reveal__hint {
+  margin: 0.45rem 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.queens-board-reveal__cta {
+  margin-top: 1rem;
+  width: 100%;
+  font-weight: 600;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.queens-board-reveal__cta:hover {
+  background: #2a2520;
+  border-color: #2a2520;
+  color: var(--paper);
+}
+
+.queens-board-reveal__cta:active {
+  transform: scale(0.98);
 }
 
 .queens-board-loader {

@@ -23,7 +23,7 @@ export function IconRestart({ className }: IconProps) {
   );
 }
 
-/** New puzzle — fresh layout */
+/** New puzzle: fresh layout */
 export function IconNewPuzzle({ className }: IconProps) {
   return (
     <svg

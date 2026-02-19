@@ -7,6 +7,10 @@
   opacity: 0.58;
 }
 
+.parent--play-locked {
+  pointer-events: none;
+}
+
 .parent {
   display: grid;
   grid-column-gap: 0;

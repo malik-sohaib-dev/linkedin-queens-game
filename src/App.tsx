@@ -54,6 +54,8 @@ function App() {
   const boardGenIdRef = useRef(0);
   const [solveElapsedMs, setSolveElapsedMs] = useState(0);
   const [solveTimerNonce, setSolveTimerNonce] = useState(0);
+  const [boardRevealed, setBoardRevealed] = useState(false);
+  const boardRevealBtnRef = useRef<HTMLButtonElement>(null);
 
   const resetSolveTimer = useCallback(() => {
     solveStartRef.current = null;
@@ -238,6 +240,21 @@ function App() {
     };
   }, [celebrationOpen]);
 
+  useEffect(() => {
+    if (isGenerating || boardRevealed || game.length === 0) return;
+    const id = window.requestAnimationFrame(() => {
+      boardRevealBtnRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [isGenerating, boardRevealed, game.length, solvedGame]);
+
+  const revealBoardAndStartTimer = useCallback(() => {
+    if (isGenerating || boardRevealed) return;
+    solveStartRef.current = performance.now();
+    setSolveTimerNonce((n) => n + 1);
+    setBoardRevealed(true);
+  }, [isGenerating, boardRevealed]);
+
   // Add event listners on Game Board to have multiselect functionality
   useEffect(() => {
     boardReference.current?.addEventListener("mousedown", () => {
@@ -257,10 +274,6 @@ function App() {
 
   // Unified place to set gameboard
   const handleGameChange = (row: number, col: number, changes: IGamePatch) => {
-    if (solveStartRef.current === null) {
-      solveStartRef.current = performance.now();
-      setSolveTimerNonce((n) => n + 1);
-    }
     const newgameBoard = game;
     newgameBoard[row][col] = { ...newgameBoard[row][col], ...changes };
     const { hasConflicts, queenCount } = processGameBoard(
@@ -280,6 +293,7 @@ function App() {
 
   // Handle Direct Click on a box
   const handleClick = (row: number, col: number) => {
+    if (!boardRevealed) return;
     // @Todo For Some reason, without this the other states aren't rerendering the component
     setToggle((prev) => !prev);
     if (!game[row][col].isBlank && !game[row][col].isQueen) {
@@ -293,7 +307,7 @@ function App() {
 
   // Handle for multiselect case
   const handleDrag = (row: number, col: number) => {
-    if (!mouseDown) return;
+    if (!boardRevealed || !mouseDown) return;
     // @Todo For Some reason, without this the other states aren't rerendering the component
     setToggle((prev) => !prev);
     // Incase of multiselect, just manage putting blanks
@@ -305,6 +319,8 @@ function App() {
   // Populate the game board with just the regions
   const clearBoard = () => {
     resetSolveTimer();
+    setBoardRevealed(false);
+    setShowSolution(false);
     if (solvedGame.length !== boardSize) return;
     const gameBoard: IGame[][] = [];
     // Process Solution board and make player game board
@@ -423,9 +439,13 @@ function App() {
             <button
               type="button"
               className="queens-icon-btn"
-              disabled={isGenerating}
+              disabled={isGenerating || !boardRevealed}
               data-tooltip={
-                showSolution ? "Hide answer key" : "Show answer key"
+                !boardRevealed
+                  ? "Reveal the play board first"
+                  : showSolution
+                    ? "Hide answer key"
+                    : "Show answer key"
               }
               onClick={() => {
                 setShowSolution((prev) => !prev);
@@ -463,7 +483,13 @@ function App() {
               }
             >
               <div
-                className={"parent" + (isGenerating ? " parent--generating" : "")}
+                className={
+                  "parent" +
+                  (isGenerating ? " parent--generating" : "") +
+                  (!boardRevealed && !isGenerating
+                    ? " parent--play-locked"
+                    : "")
+                }
                 style={{
                   gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
                   gridTemplateRows: `repeat(${boardSize}, 1fr)`,
@@ -531,6 +557,39 @@ function App() {
                         <span key={i} className="queens-board-loader__mini-cell" />
                       ))}
                     </div>
+                  </div>
+                </div>
+              ) : !boardRevealed && game.length > 0 ? (
+                <div
+                  className="queens-board-reveal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="queens-board-reveal-title"
+                  aria-describedby="queens-board-reveal-desc"
+                >
+                  <div className="queens-board-reveal__card">
+                    <p
+                      id="queens-board-reveal-title"
+                      className="queens-board-reveal__title"
+                    >
+                      Puzzle ready
+                    </p>
+                    <p
+                      id="queens-board-reveal-desc"
+                      className="queens-board-reveal__hint"
+                    >
+                      When you are ready, tap Reveal board. Your time starts when
+                      the puzzle appears, not when you place your first queen.
+                    </p>
+                    <button
+                      ref={boardRevealBtnRef}
+                      type="button"
+                      className="queens-btn queens-board-reveal__cta"
+                      onClick={revealBoardAndStartTimer}
+                      aria-label="Reveal board and start timer"
+                    >
+                      Reveal board
+                    </button>
                   </div>
                 </div>
               ) : null}
@@ -682,8 +741,8 @@ function App() {
                   squares, including diagonally.
                 </li>
                 <li>
-                  <strong>Regions.</strong> The tinted areas are regions—use
-                  each color once per queen.
+                  <strong>Regions.</strong> The tinted areas are regions. Each
+                  color must contain exactly one queen.
                 </li>
               </ul>
               <p className="queens-modal-note">
@@ -750,8 +809,8 @@ function App() {
               </span>
             </p>
             <p className="queens-celebration-text">
-              Every row, column, and region holds exactly one queen—with no two
-              touching. A quiet kind of triumph.
+              Every row, column, and region holds exactly one queen, and no two
+              touch. A quiet kind of triumph.
             </p>
             <div className="queens-celebration-actions">
               <button
