@@ -1,5 +1,7 @@
 # Queens
 
+<img src="./public/og-image.png">
+
 A browser implementation of the **LinkedIn-style Queens** puzzle: place one queen per colored region so that no two queens share a row or column, and **no two queens touch diagonally** (corner-adjacent cells are forbidden, not full “bishop” diagonals). Built with **React 19**, **TypeScript**, and **Vite**.
 
 | | |

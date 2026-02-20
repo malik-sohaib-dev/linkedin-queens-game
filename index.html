@@ -29,17 +29,33 @@
       property="og:description"
       content="Place one queen per region: no shared row, column, or corner-touching diagonals. Free browser puzzle."
     />
-    <!-- Add og:image when you have a 1200×630 JPG/PNG (SVG is unreliable in link previews). -->
+    <meta
+      property="og:image"
+      content="https://linkedin-queens-game.vercel.app/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:alt"
+      content="Queens puzzle: browser logic game with a colored region grid and castle pieces."
+    />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="LinkedIn Queens Game" />
     <meta
       name="twitter:description"
       content="LinkedIn-style Queens in the browser. One queen per region; rows, columns, and diagonals respected."
     />
-
-    <!-- For richer previews later: copy og:image here as twitter:image -->
+    <meta
+      name="twitter:image"
+      content="https://linkedin-queens-game.vercel.app/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Queens puzzle: browser logic game with a colored region grid and castle pieces."
+    />
 
     <script type="application/ld+json">
       {
@@ -51,6 +67,7 @@
             "alternateName": "Queens",
             "description": "Browser puzzle based on LinkedIn Queens: place one queen per colored region with at most one per row and column and no diagonally adjacent queens.",
             "url": "https://linkedin-queens-game.vercel.app/",
+            "image": "https://linkedin-queens-game.vercel.app/og-image.png",
             "applicationCategory": "GameApplication",
             "operatingSystem": "Any",
             "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
